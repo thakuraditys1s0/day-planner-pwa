@@ -1,0 +1,178 @@
+<!-- ===========================================
+  N E X T   D A Y   P L A N N E R   🌈✨
+  Vibrant glassmorphic layout with animated gradient backdrop
+  Features: focus goal, import unfinished, priority stars, summary copy
+===========================================-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="data:,">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day Planner · Tomorrow</title>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5c7cfa">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    html { font-size: clamp(14px, 2.5vw, 18px); }
+    button, .star, .chk input {
+  min-height: 44px;
+}
+
+    /* ---------- PALETTE & THEME ---------- */
+    :root{
+      --h1:160; /* teal */
+      --h2:280; /* violet */
+      --accent:#ff6bcb;
+      --star:#ffd60a;
+      --glass-bg:rgba(255,255,255,0.15);
+      --glass-border:rgba(255,255,255,0.35);
+      --txt:#1d1e20;
+    }
+    /* ---------- BASE ---------- */
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    html,body{height:100%}
+    body{
+      font-family:"Urbanist",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;gap:2.2rem;padding:3vh 0;
+      color:var(--txt);
+      background:linear-gradient(140deg,hsl(var(--h1) 70% 50%),hsl(var(--h2) 70% 55%));
+      background-size:200% 200%;animation:bgShift 9s ease-in-out infinite;
+    }
+    @keyframes bgShift{0%,100%{background-position:0 0}50%{background-position:100% 100%}}
+
+    a.back{align-self:flex-start;margin-left:5%;text-decoration:none;color:#fff;font-weight:600;display:flex;align-items:center;gap:.4rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+
+    h1{text-shadow:0 2px 6px rgba(0,0,0,.25);font-size:2.1rem;color:#fff;font-weight:700;letter-spacing:-.5px}
+
+    /* ---------- GLASS CARD ---------- */
+    .card{
+      width:min(94%,720px);backdrop-filter:blur(20px) saturate(160%);
+      background:var(--glass-bg);border:1px solid var(--glass-border);
+      border-radius:1.4rem;box-shadow:0 8px 24px rgba(0,0,0,.2);
+      padding:2rem 1.6rem;display:flex;flex-direction:column;gap:1.3rem;
+      animation:fadeIn .8s ease both;
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+    label strong{color:var(--accent)}
+    input,textarea{
+      font-family:inherit;font-size:1rem;border:none;border-radius:.8rem;padding:1rem;
+      background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);
+      outline:none;color:inherit;resize:none;transition:box-shadow .25s ease;
+    }
+    input:focus,textarea:focus{box-shadow:0 0 0 3px var(--accent) inset}
+
+    /* ---------- PLANNER ROWS ---------- */
+    #planner{display:flex;flex-direction:column;gap:1rem}
+    .block{display:grid;grid-template-columns:80px 1fr 42px 42px;align-items:center;
+      backdrop-filter:blur(18px) saturate(160%);background:var(--glass-bg);
+      border:1px solid var(--glass-border);border-radius:1rem;overflow:hidden;
+      box-shadow:0 4px 16px rgba(0,0,0,.15);transition:transform .25s ease;
+    }
+    .block:hover{transform:translateY(-3px)}
+    .hour{display:flex;align-items:center;justify-content:center;height:100%;font-weight:600;font-size:.95rem;background:var(--accent);color:#fff}
+
+    .star{font-size:1.3rem;cursor:pointer;color:rgba(255,255,255,.6);transition:color .25s}
+    .star.pri{color:var(--star)}
+    .btn{display:grid;place-items:center;font-size:1.1rem;border:none;background:none;cursor:pointer;color:#fff;transition:opacity .25s}
+    .btn:hover{opacity:.75}
+
+    /* ---------- TOOLBAR ---------- */
+    .toolbar{display:flex;flex-wrap:wrap;gap:.9rem;justify-content:space-between}
+    .toolbar button{
+      flex:1 1 180px;border:none;border-radius:1rem;padding:.8rem 1.3rem;font-weight:600;cursor:pointer;
+      background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;gap:.5rem;
+      box-shadow:0 6px 18px rgba(0,0,0,.25);transition:transform .25s ease,box-shadow .25s ease}
+    .toolbar button:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.3)}
+
+    @media(max-width:520px){.block{grid-template-columns:70px 1fr 40px 40px}.hour{font-size:.85rem}}
+    @media (max-width: 420px) {
+  .block {
+    grid-template-columns: 1fr 46px 46px;
+    grid-template-areas:
+      "txt star save"
+      "hour hour hour";
+  }
+  .hour { grid-area: hour; }
+  textarea { grid-area: txt; }
+}
+
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back"><i class="fa-solid fa-angle-left"></i> Back</a>
+  <h1>Plan Tomorrow 🌟</h1>
+
+  <!-- Goal Card -->
+  <section class="card">
+    <label><strong>What’s your #1 focus?</strong></label>
+    <input id="goal" placeholder="Finish UI prototype, read 30 pages, ..." />
+  </section>
+
+  <!-- Planner Card -->
+  <section class="card" id="plannerCard">
+    <div id="planner"></div>
+    <div class="toolbar">
+      <button id="importBtn"><i class="fa-solid fa-arrow-down"></i> Import Unfinished</button>
+      <button id="copyBtn"><i class="fa-solid fa-copy"></i> Copy Summary</button>
+    </div>
+  </section>
+
+  <script>
+    const HOURS=[9,10,11,12,13,14,15,16,17];
+    const plannerEl=document.getElementById("planner");
+    const goalInput=document.getElementById("goal");
+    const importBtn=document.getElementById("importBtn");
+    const copyBtn=document.getElementById("copyBtn");
+    const k=h=>`tom-${h}`;
+
+    function build(){
+      plannerEl.innerHTML="";
+      HOURS.forEach(h=>{
+        const row=document.createElement("div");row.className="block";
+        const hour=document.createElement("div");hour.className="hour";hour.textContent=(h>12?h-12:h)+" "+(h>=12?"PM":"AM");
+        const ta=document.createElement("textarea");ta.rows=2;ta.placeholder="Add task...";
+        ta.value=localStorage.getItem(k(h))||"";ta.onchange=()=>localStorage.setItem(k(h),ta.value);
+        const star=document.createElement("i");star.className="star fa-regular fa-star";
+        if(localStorage.getItem(k(h)+"-pri")==="1"){star.classList.add("pri");star.classList.replace("fa-regular","fa-solid")}
+        star.onclick=()=>{const pri=star.classList.toggle("pri");star.classList.toggle("fa-solid");star.classList.toggle("fa-regular");localStorage.setItem(k(h)+"-pri",pri?"1":"0")};
+        const del=document.createElement("button");del.className="btn";del.innerHTML="<i class='fa-solid fa-trash'></i>";
+        del.onclick=()=>{ta.value="";localStorage.removeItem(k(h));localStorage.removeItem(k(h)+"-pri")};
+        row.append(hour,ta,star,del);plannerEl.appendChild(row);
+      });
+      goalInput.value=localStorage.getItem("tom-goal")||"";
+    }
+    build();
+    goalInput.onchange=()=>localStorage.setItem("tom-goal",goalInput.value);
+
+    importBtn.onclick=()=>{
+      let added=0;HOURS.forEach(h=>{const today=localStorage.getItem(`task-${h}`)||"";if(today&&!localStorage.getItem(k(h))){localStorage.setItem(k(h),today);added++;}});
+      added?alert(`${added} tasks imported ✔`):alert("Nothing to import 🙂");build();
+    };
+
+    copyBtn.onclick=()=>{
+      let txt=`Focus: ${goalInput.value||"(none)"}\n\n`;
+      HOURS.forEach(h=>{const t=localStorage.getItem(k(h));if(t){txt+=`${(h>12?h-12:h)} ${(h>=12?"PM":"AM")}: ${t}\n`}});
+      navigator.clipboard.writeText(txt).then(()=>alert("Copied to clipboard! ✂️"));
+    }
+    if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('✅ Service Worker registered'))
+      .catch(err => console.error('❌ Service Worker failed:', err));
+  }
+</script>
+
+</body>
+</html>

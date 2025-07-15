@@ -1,0 +1,143 @@
+<!-- =============================================
+   B E F O R E ‑ W O R K   P L A N N E R  (6 AM ‑ 9 AM)
+   Same styling as main page, smaller hour range
+=============================================-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:,">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Day Planner · 6‑9 AM</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5c7cfa">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    html { font-size: clamp(14px, 2.5vw, 18px); }
+    button, .star, .chk input {
+  min-height: 44px;
+}
+
+    :root{
+      --h1:45;         /* sunrise orange‑yellow */
+      --h2:215;        /* sky blue */
+      --accent:#ff9f1c;
+      --star:#ffd60a;
+      --glass:rgba(255,255,255,.15);
+      --border:rgba(255,255,255,.35);
+      --txt:#1d1f22;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0}
+    html,body{height:100%}
+    body{
+      font-family:"Urbanist",sans-serif;display:flex;flex-direction:column;align-items:center;
+      gap:2.3rem;padding:3vh 0;color:var(--txt);
+      background:linear-gradient(140deg,hsl(var(--h1) 80% 55%),hsl(var(--h2) 70% 55%));
+      background-size:200% 200%;animation:bgShift 9s ease-in-out infinite;
+    }
+    @keyframes bgShift{0%,100%{background-position:0 0}50%{background-position:100% 100%}}
+
+    a.back{align-self:flex-start;margin-left:5%;text-decoration:none;color:#fff;font-weight:600;
+           display:inline-flex;align-items:center;gap:.4rem;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+    h1{font-size:2rem;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+
+    .glass{
+      width:min(94%,720px);backdrop-filter:blur(20px) saturate(160%);
+      background:var(--glass);border:1px solid var(--border);border-radius:1.4rem;
+      box-shadow:0 8px 24px rgba(0,0,0,.2);padding:2rem 1.6rem;
+      display:flex;flex-direction:column;gap:1.3rem;
+    }
+
+    /* rows */
+    #planner{display:flex;flex-direction:column;gap:1rem}
+    .block{
+      display:grid;grid-template-columns:80px 1fr 42px 42px 42px;align-items:center;
+      backdrop-filter:blur(18px) saturate(160%);background:var(--glass);
+      border:1px solid var(--border);border-radius:1rem;overflow:hidden;
+      box-shadow:0 4px 16px rgba(0,0,0,.15);transition:transform .25s;
+    }
+    .block:hover{transform:translateY(-3px)}
+    .hour{display:flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;font-weight:600}
+    textarea{border:none;background:transparent;color:inherit;font-size:1rem;padding:1rem;min-height:56px;resize:none;outline:none}
+    button,.star{background:none;border:none;font-size:1.2rem;display:grid;place-items:center;cursor:pointer;transition:opacity .25s}
+    button:hover{opacity:.75}
+    .star{color:rgba(255,255,255,.65)}.star.pri{color:var(--star)}
+    @media(max-width:520px){.block{grid-template-columns:70px 1fr 40px 40px 40px}}
+    @media (max-width: 420px) {
+  .block {
+    grid-template-columns: 1fr 46px 46px;
+    grid-template-areas:
+      "txt star save"
+      "hour hour hour";
+  }
+  .hour { grid-area: hour; }
+  textarea { grid-area: txt; }
+}
+
+  </style>
+</head>
+<body>
+  <!-- back link -->
+  <a href="index.html" class="back"><i class="fa-solid fa-angle-left"></i> Back to Today</a>
+  <h1>Before‑Work Planner (6‑9 AM)</h1>
+
+  <section class="glass">
+    <div id="planner"></div>
+  </section>
+
+  <script>
+    const HOURS=[6,7,8,9];   // inclusive; 9 AM added for a buffer
+    const planner=document.getElementById('planner');
+    const key=h=>`bw-${h}`;   // separate namespace from main planner
+
+    function build(){
+      planner.innerHTML='';
+      HOURS.forEach(h=>{
+        const row=document.createElement('div');row.className='block';
+        const hour=document.createElement('div');hour.className='hour';
+        hour.textContent=(h>12?h-12:h)+' '+(h>=12?'PM':'AM');
+
+        const ta=document.createElement('textarea');
+        ta.placeholder='Add task…';
+        ta.value=localStorage.getItem(key(h))||'';
+        ta.oninput=()=>localStorage.setItem(key(h),ta.value);
+
+        const star=document.createElement('i');
+        star.className='star fa-regular fa-star';
+        if(localStorage.getItem(key(h)+'-pri')==='1'){
+          star.classList.add('pri');star.classList.replace('fa-regular','fa-solid');
+        }
+        star.onclick=()=>{
+          const pri=star.classList.toggle('pri');
+          star.classList.toggle('fa-solid');star.classList.toggle('fa-regular');
+          localStorage.setItem(key(h)+'-pri',pri?'1':'0');
+        };
+
+        const save=document.createElement('button');save.innerHTML='<i class=\"fa-solid fa-floppy-disk\"></i>';
+        save.onclick=()=>localStorage.setItem(key(h),ta.value);
+
+        const del=document.createElement('button');del.innerHTML='<i class=\"fa-solid fa-trash\"></i>';
+        del.onclick=()=>{ta.value='';localStorage.removeItem(key(h));localStorage.removeItem(key(h)+'-pri');};
+
+        row.append(hour,ta,star,save,del);
+        planner.appendChild(row);
+      });
+    }
+    build();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('✅ Service Worker registered'))
+      .catch(err => console.error('❌ Service Worker failed:', err));
+  }
+</script>
+</body>
+</html>
